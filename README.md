@@ -7,8 +7,7 @@
 ### Tech stack
 
 - PHP 8.3
-- Symfony 7 (Doctrine & Twig)
-- MySQL 8.3
+- Symfony 7.1
 - Docker
 
 ### To test this on your local machine, follow the instructions bellow
@@ -58,35 +57,6 @@ docker exec -it php-container bash
 composer install
 ```
 
-#### Migrate database
-
-```bash
-php bin/console doctrine:migrations:migrate
-```
-
-#### Load fixtures
-
-```bash
-php bin/console doctrine:fixtures:load -n
-```
-
-#### Install node modules
-
-Open a new terminal and run the following command
-
-```bash
-docker-compose run node-service npm install
-docker-compose run node-service npm run build
-```
-
 #### Bowser
 
 Now, open https://voice-to-text.test in your browser
-
-#### Mailpit
-
-To see the emails sent by the app, open http://localhost:8025/ in your browser
-
-#### PHPMyAdmin
-
-To see the database, open http://localhost:8080/ in your browser
