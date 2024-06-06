@@ -2,9 +2,9 @@ name: "CI"
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
 
@@ -16,8 +16,10 @@ jobs:
           php-version: '8.2'
       - uses: actions/checkout@v3
 
-      - name: Copy .env files
+      - name: Make .env.local
         run: php -r "copy('app/.env', 'app/.env.local');"
+
+      - name: Make .env.test.local
         run: php -r "copy('app/.env.test', 'app/.env.test.local');"
 
       - name: Install Dependencies
