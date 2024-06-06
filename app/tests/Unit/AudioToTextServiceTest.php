@@ -7,6 +7,7 @@ use App\Service\AudioToFileService;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Fake\FakeHttpException;
+use App\Tests\Trait\FileDuplicator;
 use App\ValueObject\FileData;
 use PHPUnit\Framework\TestCase;
 use UnexpectedValueException;
@@ -17,6 +18,8 @@ use UnexpectedValueException;
  */
 class AudioToTextServiceTest extends TestCase
 {
+    use FileDuplicator;
+
     public function testConvertMethodConvertsAudioFileToTextSuccessfully(): void
     {
         list($fakeSecret, $fileData) = $this->getFakeData();
@@ -119,10 +122,7 @@ class AudioToTextServiceTest extends TestCase
     {
         $fakeSecret = 'MyFakeSecret';
         $originalFilepath = __DIR__ . '/../TestFiles/test-1.mp3';
-        $filepath = '/tmp/' . uniqid() . '-' . basename($originalFilepath);
-
-        copy($originalFilepath, $filepath);
-
+        $filepath = $this->duplicate($originalFilepath);
         $fileData = new FileData(
             $filepath,
             basename($filepath),
