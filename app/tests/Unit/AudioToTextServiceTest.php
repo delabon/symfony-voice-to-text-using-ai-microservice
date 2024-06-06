@@ -122,7 +122,7 @@ class AudioToTextServiceTest extends TestCase
     {
         $fakeSecret = 'MyFakeSecret';
         $originalFilepath = __DIR__ . '/../TestFiles/test-1.mp3';
-        $filepath = $this->duplicate($originalFilepath);
+        $filepath = self::duplicate($originalFilepath);
         $fileData = new FileData(
             $filepath,
             basename($filepath),
