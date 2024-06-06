@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\ValueObject\FileData;
-use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -18,6 +17,7 @@ readonly class AudioToFileService
 {
     public function __construct(
         private HttpClientInterface $client,
+        private AudioFileValidator $validator,
         #[Autowire('%openai_secret%')]
         private string $openAiSecret
     )
@@ -34,26 +34,10 @@ readonly class AudioToFileService
      */
     public function convert(FileData $file): string
     {
-        $this->validateFile($file);
+        $this->validator->validate($file);
         $response = $this->makeRequest($file);
 
         return $this->handleResponse($response);
-    }
-
-    private function validateFile(FileData $file): void
-    {
-        if (!in_array($file->getMime(), [
-            'audio/mpeg',
-            'audio/mp3',
-            'audio/mp4',
-            'audio/x-m4a',
-            'audio/wav',
-            'audio/x-wav',
-            'audio/wave',
-            'audio/webm',
-        ])) {
-            throw new InvalidArgumentException('The file passed is not an audio file or the format is not supported.');
-        }
     }
 
     /**
