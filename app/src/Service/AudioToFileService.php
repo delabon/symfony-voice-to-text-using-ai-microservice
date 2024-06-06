@@ -51,15 +51,11 @@ readonly class AudioToFileService
                 'Content-Type' => 'multipart/form-data'
             ],
             'body' => [
-                [
-                    'name' => 'file',
-                    'contents' => $file->getContent(),
+                'file' => [
+                    'content' => $file->getContent(),
                     'filename' => $file->getName(),
                 ],
-                [
-                    'name' => 'model',
-                    'contents' => 'whisper-1',
-                ],
+                'model' => 'whisper-1',
             ],
         ]);
     }

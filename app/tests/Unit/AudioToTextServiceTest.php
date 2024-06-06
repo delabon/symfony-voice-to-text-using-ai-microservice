@@ -156,15 +156,11 @@ class AudioToTextServiceTest extends TestCase
                         'Content-Type' => 'multipart/form-data'
                     ],
                     'body' => [
-                        [
-                            'name' => 'file',
-                            'contents' => $fileData->getContent(),
+                        'file' => [
+                            'content' => $fileData->getContent(),
                             'filename' => $fileData->getName(),
                         ],
-                        [
-                            'name' => 'model',
-                            'contents' => 'whisper-1',
-                        ],
+                        'model' => 'whisper-1',
                     ],
                 ]
             )->willReturn($clientResponseMock);
