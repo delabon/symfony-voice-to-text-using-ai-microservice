@@ -2,12 +2,12 @@
 
 namespace App\Tests\Unit;
 
+use App\Service\AudioFileValidator;
 use App\Service\AudioToFileService;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Fake\FakeHttpException;
 use App\ValueObject\FileData;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use UnexpectedValueException;
 
@@ -33,35 +33,12 @@ class AudioToTextServiceTest extends TestCase
 
         $service = new AudioToFileService(
             $clientMock,
+            new AudioFileValidator(),
             $fakeSecret
         );
         $text = $service->convert($fileData);
 
         $this->assertSame("It's a nice day today, isn't it?", $text);
-    }
-
-    public function testConvertMethodsThrowsExceptionWhenNonAudioFileIsPassed(): void
-    {
-        $fakeSecret = 'MyFakeSecret';
-        $fileData = new FileData(
-            '/tmp/uploaded.pdf',
-            'uploaded.pdf',
-            'pdf',
-            'application/pdf',
-            'Fake pdf content'
-        );
-
-        $clientMock = $this->createStub(FakeHttpClient::class);
-
-        $service = new AudioToFileService(
-            $clientMock,
-            $fakeSecret
-        );
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The file passed is not an audio file or the format is not supported.');
-
-        $service->convert($fileData);
     }
 
     public function testConvertMethodsThrowsExceptionWhenInvalidResponseIsReturned(): void
@@ -78,6 +55,7 @@ class AudioToTextServiceTest extends TestCase
 
         $service = new AudioToFileService(
             $clientMock,
+            new AudioFileValidator(),
             $fakeSecret
         );
 
@@ -100,6 +78,7 @@ class AudioToTextServiceTest extends TestCase
 
         $service = new AudioToFileService(
             $clientMock,
+            new AudioFileValidator(),
             $fakeSecret
         );
 
@@ -123,6 +102,7 @@ class AudioToTextServiceTest extends TestCase
 
         $service = new AudioToFileService(
             $clientMock,
+            new AudioFileValidator(),
             $fakeSecret
         );
 
@@ -138,14 +118,20 @@ class AudioToTextServiceTest extends TestCase
     protected function getFakeData(): array
     {
         $fakeSecret = 'MyFakeSecret';
+        $originalFilepath = __DIR__ . '/../TestFiles/test-1.mp3';
+        $filepath = '/tmp/' . uniqid() . '-' . basename($originalFilepath);
+
+        copy($originalFilepath, $filepath);
+
         $fileData = new FileData(
-            '/tmp/uploaded.mp3',
-            'uploaded.mp3',
+            $filepath,
+            basename($filepath),
             'mp3',
             'audio/mpeg',
             'Fake audio content'
         );
-        return array($fakeSecret, $fileData);
+
+        return [$fakeSecret, $fileData];
     }
 
     /**
