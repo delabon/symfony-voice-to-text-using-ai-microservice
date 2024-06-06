@@ -6,21 +6,20 @@ use App\Service\AudioToFileService;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Fake\FakeHttpException;
+use App\ValueObject\FileData;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use UnexpectedValueException;
 
 /**
  * Notes:
- * - No need to create a test for non-existent file because UploadedFile throws exception in this case
+ * - No need to create a test for non-existent file because UploadedFile throws an exception in this case
  */
 class AudioToTextServiceTest extends TestCase
 {
     public function testConvertMethodConvertsAudioFileToTextSuccessfully(): void
     {
-        $file = new UploadedFile(__DIR__ . '/../TestFiles/test-1.mp3', 'test-1.mp3', 'audio/mpeg', null, true);
-        $fakeSecret = 'MyFakeSecret';
+        list($fakeSecret, $fileData) = $this->getFakeData();
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -30,44 +29,27 @@ class AudioToTextServiceTest extends TestCase
                 'text' => "It's a nice day today, isn't it?"
             ]));
 
-        $clientMock = $this->createMock(FakeHttpClient::class);
-        $clientMock->expects($this->exactly(1))
-            ->method('request')
-            ->with(
-                'POST',
-                'https://api.openai.com/v1/audio/transcriptions',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $fakeSecret,
-                        'Content-Type' => 'multipart/form-data'
-                    ],
-                    'body' => [
-                        [
-                            'name' => 'file',
-                            'contents' => $file->getContent(),
-                            'filename' => $file->getClientOriginalName(),
-                        ],
-                        [
-                            'name' => 'model',
-                            'contents' => 'whisper-1',
-                        ],
-                    ],
-                ]
-            )->willReturn($clientResponseMock);
+        $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
             $clientMock,
             $fakeSecret
         );
-        $text = $service->convert($file);
+        $text = $service->convert($fileData);
 
         $this->assertSame("It's a nice day today, isn't it?", $text);
     }
 
     public function testConvertMethodsThrowsExceptionWhenNonAudioFileIsPassed(): void
     {
-        $file = new UploadedFile(__DIR__ . '/../TestFiles/test-3.pdf', 'test-3.pdf', 'application/pdf', null, true);
         $fakeSecret = 'MyFakeSecret';
+        $fileData = new FileData(
+            '/tmp/uploaded.pdf',
+            'uploaded.pdf',
+            'pdf',
+            'application/pdf',
+            'Fake pdf content'
+        );
 
         $clientMock = $this->createStub(FakeHttpClient::class);
 
@@ -79,13 +61,12 @@ class AudioToTextServiceTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The file passed is not an audio file or the format is not supported.');
 
-        $service->convert($file);
+        $service->convert($fileData);
     }
 
     public function testConvertMethodsThrowsExceptionWhenInvalidResponseIsReturned(): void
     {
-        $file = new UploadedFile(__DIR__ . '/../TestFiles/test-1.mp3', 'test-1.mp3', 'audio/mpeg', null, true);
-        $fakeSecret = 'MyFakeSecret';
+        list($fakeSecret, $fileData) = $this->getFakeData();
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -93,30 +74,7 @@ class AudioToTextServiceTest extends TestCase
             ->with(true)
             ->willThrowException(new FakeHttpException());
 
-        $clientMock = $this->createMock(FakeHttpClient::class);
-        $clientMock->expects($this->exactly(1))
-            ->method('request')
-            ->with(
-                'POST',
-                'https://api.openai.com/v1/audio/transcriptions',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $fakeSecret,
-                        'Content-Type' => 'multipart/form-data'
-                    ],
-                    'body' => [
-                        [
-                            'name' => 'file',
-                            'contents' => $file->getContent(),
-                            'filename' => $file->getClientOriginalName(),
-                        ],
-                        [
-                            'name' => 'model',
-                            'contents' => 'whisper-1',
-                        ],
-                    ],
-                ]
-            )->willReturn($clientResponseMock);
+        $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
             $clientMock,
@@ -125,13 +83,12 @@ class AudioToTextServiceTest extends TestCase
 
         $this->expectException(FakeHttpException::class);
 
-        $service->convert($file);
+        $service->convert($fileData);
     }
 
     public function testConvertMethodsThrowsExceptionWhenInvalidResponseFormatIsReturned(): void
     {
-        $file = new UploadedFile(__DIR__ . '/../TestFiles/test-1.mp3', 'test-1.mp3', 'audio/mpeg', null, true);
-        $fakeSecret = 'MyFakeSecret';
+        list($fakeSecret, $fileData) = $this->getFakeData();
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -139,30 +96,7 @@ class AudioToTextServiceTest extends TestCase
             ->with(true)
             ->willReturn('"');
 
-        $clientMock = $this->createMock(FakeHttpClient::class);
-        $clientMock->expects($this->exactly(1))
-            ->method('request')
-            ->with(
-                'POST',
-                'https://api.openai.com/v1/audio/transcriptions',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $fakeSecret,
-                        'Content-Type' => 'multipart/form-data'
-                    ],
-                    'body' => [
-                        [
-                            'name' => 'file',
-                            'contents' => $file->getContent(),
-                            'filename' => $file->getClientOriginalName(),
-                        ],
-                        [
-                            'name' => 'model',
-                            'contents' => 'whisper-1',
-                        ],
-                    ],
-                ]
-            )->willReturn($clientResponseMock);
+        $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
             $clientMock,
@@ -172,13 +106,12 @@ class AudioToTextServiceTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid response format.');
 
-        $service->convert($file);
+        $service->convert($fileData);
     }
 
     public function testConvertMethodsThrowsExceptionWhenResponseDoesNotHaveTheTextKey(): void
     {
-        $file = new UploadedFile(__DIR__ . '/../TestFiles/test-1.mp3', 'test-1.mp3', 'audio/mpeg', null, true);
-        $fakeSecret = 'MyFakeSecret';
+        list($fakeSecret, $fileData) = $this->getFakeData();
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -186,6 +119,45 @@ class AudioToTextServiceTest extends TestCase
             ->with(true)
             ->willReturn('[]');
 
+        $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
+
+        $service = new AudioToFileService(
+            $clientMock,
+            $fakeSecret
+        );
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('The response does not have the text key.');
+
+        $service->convert($fileData);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getFakeData(): array
+    {
+        $fakeSecret = 'MyFakeSecret';
+        $fileData = new FileData(
+            '/tmp/uploaded.mp3',
+            'uploaded.mp3',
+            'mp3',
+            'audio/mpeg',
+            'Fake audio content'
+        );
+        return array($fakeSecret, $fileData);
+    }
+
+    /**
+     * @param mixed $fakeSecret
+     * @param mixed $fileData
+     * @param $clientResponseMock
+     */
+    protected function getClientMock(
+        mixed $fakeSecret,
+        mixed $fileData,
+        $clientResponseMock
+    ) {
         $clientMock = $this->createMock(FakeHttpClient::class);
         $clientMock->expects($this->exactly(1))
             ->method('request')
@@ -200,8 +172,8 @@ class AudioToTextServiceTest extends TestCase
                     'body' => [
                         [
                             'name' => 'file',
-                            'contents' => $file->getContent(),
-                            'filename' => $file->getClientOriginalName(),
+                            'contents' => $fileData->getContent(),
+                            'filename' => $fileData->getName(),
                         ],
                         [
                             'name' => 'model',
@@ -210,15 +182,6 @@ class AudioToTextServiceTest extends TestCase
                     ],
                 ]
             )->willReturn($clientResponseMock);
-
-        $service = new AudioToFileService(
-            $clientMock,
-            $fakeSecret
-        );
-
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('The response does not have the text key.');
-
-        $service->convert($file);
+        return $clientMock;
     }
 }

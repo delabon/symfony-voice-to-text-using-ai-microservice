@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
-use Exception;
+use App\ValueObject\FileData;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -30,8 +30,9 @@ readonly class AudioToFileService
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      * @throws UnexpectedValueException
+     * @throws FileException
      */
-    public function convert(UploadedFile $file)
+    public function convert(FileData $file): string
     {
         $this->validateFile($file);
         $response = $this->makeRequest($file);
@@ -39,13 +40,9 @@ readonly class AudioToFileService
         return $this->handleResponse($response);
     }
 
-    /**
-     * @param UploadedFile $file
-     * @return void
-     */
-    private function validateFile(UploadedFile $file): void
+    private function validateFile(FileData $file): void
     {
-        if (!in_array($file->getMimeType(), [
+        if (!in_array($file->getMime(), [
             'audio/mpeg',
             'audio/mp3',
             'audio/mp4',
@@ -60,11 +57,9 @@ readonly class AudioToFileService
     }
 
     /**
-     * @param UploadedFile $file
-     * @return ResponseInterface
      * @throws TransportExceptionInterface
      */
-    private function makeRequest(UploadedFile $file): ResponseInterface
+    private function makeRequest(FileData $file): ResponseInterface
     {
         return $this->client->request('POST', 'https://api.openai.com/v1/audio/transcriptions', [
             'headers' => [
@@ -75,7 +70,7 @@ readonly class AudioToFileService
                 [
                     'name' => 'file',
                     'contents' => $file->getContent(),
-                    'filename' => $file->getClientOriginalName(),
+                    'filename' => $file->getName(),
                 ],
                 [
                     'name' => 'model',
@@ -86,14 +81,12 @@ readonly class AudioToFileService
     }
 
     /**
-     * @param ResponseInterface $response
-     * @return mixed
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    private function handleResponse(ResponseInterface $response): mixed
+    private function handleResponse(ResponseInterface $response): string
     {
         $json = json_decode($response->getContent(), true);
 
