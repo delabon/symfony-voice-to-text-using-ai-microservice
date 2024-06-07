@@ -26,12 +26,6 @@ jobs:
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
         working-directory: app
 
-      - name: Start PHP server
-        run: php -S localhost:8000 -t public &
-        working-directory: app
-
       - name: Execute all tests
-        env:
-          BASE_URL: http://localhost:8000
         run: vendor/bin/phpunit --testsuite=Unit
         working-directory: app
