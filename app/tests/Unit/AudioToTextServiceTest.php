@@ -4,6 +4,7 @@ namespace App\Tests\Unit;
 
 use App\Service\AudioFileValidator;
 use App\Service\AudioToFileService;
+use App\Service\ResponseHandler;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Fake\FakeHttpException;
@@ -37,6 +38,7 @@ class AudioToTextServiceTest extends TestCase
         $service = new AudioToFileService(
             $clientMock,
             new AudioFileValidator(),
+            new ResponseHandler(),
             $fakeSecret
         );
         $text = $service->convert($fileData);
@@ -59,6 +61,7 @@ class AudioToTextServiceTest extends TestCase
         $service = new AudioToFileService(
             $clientMock,
             new AudioFileValidator(),
+            new ResponseHandler(),
             $fakeSecret
         );
 
@@ -82,6 +85,7 @@ class AudioToTextServiceTest extends TestCase
         $service = new AudioToFileService(
             $clientMock,
             new AudioFileValidator(),
+            new ResponseHandler(),
             $fakeSecret
         );
 
@@ -106,6 +110,7 @@ class AudioToTextServiceTest extends TestCase
         $service = new AudioToFileService(
             $clientMock,
             new AudioFileValidator(),
+            new ResponseHandler(),
             $fakeSecret
         );
 

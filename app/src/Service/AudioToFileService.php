@@ -18,6 +18,7 @@ readonly class AudioToFileService
     public function __construct(
         private HttpClientInterface $client,
         private AudioFileValidator $validator,
+        private ResponseHandler $responseHandler,
         #[Autowire('%openai_secret%')]
         private string $openAiSecret
     )
@@ -37,7 +38,7 @@ readonly class AudioToFileService
         $this->validator->validate($file);
         $response = $this->makeRequest($file);
 
-        return $this->handleResponse($response);
+        return $this->responseHandler->handle($response);
     }
 
     /**
@@ -58,26 +59,5 @@ readonly class AudioToFileService
                 'model' => 'whisper-1',
             ],
         ]);
-    }
-
-    /**
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     */
-    private function handleResponse(ResponseInterface $response): string
-    {
-        $json = json_decode($response->getContent(), true);
-
-        if ($json === null) {
-            throw new UnexpectedValueException('Invalid response format.');
-        }
-
-        if (!array_key_exists('text', $json)) {
-            throw new UnexpectedValueException('The response does not have the text key.');
-        }
-
-        return $json['text'];
     }
 }
