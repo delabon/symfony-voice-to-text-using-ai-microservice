@@ -4,6 +4,7 @@ namespace App\Tests\Unit;
 
 use App\Service\AudioFileValidator;
 use App\Service\AudioToFileService;
+use App\Service\RequestMaker;
 use App\Service\ResponseHandler;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
@@ -36,10 +37,9 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            $clientMock,
             new AudioFileValidator(),
             new ResponseHandler(),
-            $fakeSecret
+            new RequestMaker($clientMock, $fakeSecret)
         );
         $text = $service->convert($fileData);
 
@@ -59,10 +59,9 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            $clientMock,
             new AudioFileValidator(),
             new ResponseHandler(),
-            $fakeSecret
+            new RequestMaker($clientMock, $fakeSecret)
         );
 
         $this->expectException(FakeHttpException::class);
@@ -83,10 +82,9 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            $clientMock,
             new AudioFileValidator(),
             new ResponseHandler(),
-            $fakeSecret
+            new RequestMaker($clientMock, $fakeSecret)
         );
 
         $this->expectException(UnexpectedValueException::class);
@@ -108,10 +106,9 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($fakeSecret, $fileData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            $clientMock,
             new AudioFileValidator(),
             new ResponseHandler(),
-            $fakeSecret
+            new RequestMaker($clientMock, $fakeSecret)
         );
 
         $this->expectException(UnexpectedValueException::class);
