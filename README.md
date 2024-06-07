@@ -1,16 +1,13 @@
-## About
+This web-based application converts audio files into text using OpenAI's Whisper ASR API. Built with PHP and the Symfony framework, it offers robust and scalable performance. Key features include:
 
-This project is a web-based application that allows users to convert audio files into text. It leverages the power of OpenAI's Whisper ASR API to transcribe the audio content. The application is built using PHP and the Symfony framework, ensuring robustness and scalability. It also includes a comprehensive suite of unit and feature tests, ensuring the reliability of the application. The application is containerized using Docker, making it easy to set up and run in any environment.
+- **Audio Upload**: Users can upload audio files in formats like MP3, MP4, and WAV. The application checks if the file format is compatible.
+- **Audio to Text Conversion**: Converts uploaded audio files into text with Whisper ASR API, handling various scenarios including errors.
+- **Error Handling**: Manages errors gracefully, checking for issues like invalid file formats and API errors.
+- **Testing**: Includes thorough unit and feature tests to ensure reliability.
+- **Docker Support**: Containerized with Docker for easy setup and deployment.
+- **Continuous Integration**: Uses GitHub Actions to maintain code quality and reliability.
 
-### Key features
-
-- **Audio Upload**: Users can upload audio files in various formats such as MP3, MP4, WAV, and more. The application validates the file format for compatibility.
-- **Audio to Text Conversion**: The application converts the uploaded audio file into text using OpenAI's Whisper ASR API. It handles various scenarios such as invalid API responses and errors.
-- **Error Handling**: The application is designed to handle various error scenarios gracefully. It includes checks for invalid file formats, API errors, and more.
-- **Unit and Feature Tests**: The application includes a comprehensive suite of tests, ensuring each component and feature works as expected.
-- **Docker Support**: The application is containerized using Docker, making it easy to set up and run in any environment.
-- **Continuous Integration**: The project uses GitHub Actions for Continuous Integration, ensuring the codebase's health and reliability.
-
+This makes the application easy to set up, reliable, and capable of running in any environment.
 ### Tech stack
 
 - PHP 8.3: Programming language
