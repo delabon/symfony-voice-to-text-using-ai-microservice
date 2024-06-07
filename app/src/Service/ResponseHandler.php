@@ -11,19 +11,15 @@ use UnexpectedValueException;
 
 class ResponseHandler
 {
-    public function __construct(private readonly ResponseInterface $response)
-    {
-    }
-
     /**
      * @throws TransportExceptionInterface
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function handle(): string
+    public function handle(ResponseInterface $response): string
     {
-        $json = json_decode($this->response->getContent(), true);
+        $json = json_decode($response->getContent(), true);
 
         if ($json === null) {
             throw new UnexpectedValueException('Invalid response format.');

@@ -15,9 +15,9 @@ class ResponseHandlerTest extends TestCase
             ->method('getContent')
             ->willReturn('{"text":"My fake response text"}');
 
-        $responseHandler = new ResponseHandler($mockClientResponse);
+        $responseHandler = new ResponseHandler();
 
-        $text = $responseHandler->handle();
+        $text = $responseHandler->handle($mockClientResponse);
 
         $this->assertSame("My fake response text", $text);
     }
@@ -29,9 +29,9 @@ class ResponseHandlerTest extends TestCase
             ->method('getContent')
             ->willReturn('{"text":"Cool Stuff"}');
 
-        $responseHandler = new ResponseHandler($mockClientResponse);
+        $responseHandler = new ResponseHandler();
 
-        $text = $responseHandler->handle();
+        $text = $responseHandler->handle($mockClientResponse);
 
         $this->assertSame("Cool Stuff", $text);
     }
@@ -43,12 +43,12 @@ class ResponseHandlerTest extends TestCase
             ->method('getContent')
             ->willReturn('"');
 
-        $responseHandler = new ResponseHandler($mockClientResponse);
+        $responseHandler = new ResponseHandler();
 
         $this->expectException(\UnexpectedValueException::class);
         $this->expectExceptionMessage("Invalid response format.");
 
-        $responseHandler->handle();
+        $responseHandler->handle($mockClientResponse);
     }
 
     public function testMethodHandleThrowsExceptionResponseBodyDoesNotHaveTheTextParameter(): void
@@ -58,11 +58,11 @@ class ResponseHandlerTest extends TestCase
             ->method('getContent')
             ->willReturn('{"success":true}');
 
-        $responseHandler = new ResponseHandler($mockClientResponse);
+        $responseHandler = new ResponseHandler();
 
         $this->expectException(\UnexpectedValueException::class);
         $this->expectExceptionMessage("The response does not have the text key.");
 
-        $responseHandler->handle();
+        $responseHandler->handle($mockClientResponse);
     }
 }
