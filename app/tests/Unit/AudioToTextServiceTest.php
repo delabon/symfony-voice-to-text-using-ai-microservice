@@ -60,7 +60,7 @@ class AudioToTextServiceTest extends TestCase
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
             ->method('getContent')
-            ->with(true)
+            ->with(false)
             ->willReturn(json_encode([
                 'text' => "It's a nice day today, isn't it?"
             ]));
@@ -84,7 +84,7 @@ class AudioToTextServiceTest extends TestCase
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
             ->method('getContent')
-            ->with(true)
+            ->with(false)
             ->willThrowException(new FakeHttpException());
 
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
@@ -107,7 +107,7 @@ class AudioToTextServiceTest extends TestCase
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
             ->method('getContent')
-            ->with(true)
+            ->with(false)
             ->willReturn('"');
 
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
@@ -131,7 +131,7 @@ class AudioToTextServiceTest extends TestCase
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
             ->method('getContent')
-            ->with(true)
+            ->with(false)
             ->willReturn('[]');
 
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
