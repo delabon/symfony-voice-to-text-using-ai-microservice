@@ -6,7 +6,6 @@ use App\Exception\ApiServerErrorException;
 use App\Exception\ApiServerOverloadedException;
 use App\Exception\InvalidApiSecretException;
 use App\Exception\RateLimitReachedException;
-use App\RequestMaker;
 use App\ValueObject\FileData;
 use Symfony\Component\Mime\Header\Headers;
 use Symfony\Component\Mime\Part\AbstractMultipartPart;
