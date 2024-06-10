@@ -2,7 +2,11 @@
 
 namespace App\Tests\Unit;
 
-use App\Service\RequestMaker;
+use App\Exception\ApiServerErrorException;
+use App\Exception\ApiServerOverloadedException;
+use App\Exception\InvalidApiSecretException;
+use App\Exception\RateLimitReachedException;
+use App\RequestMaker;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Trait\RequestHeaderAndFormDataCreator;
@@ -38,11 +42,7 @@ class RequestMakerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    /**
-     * @return void
-     * @throws TransportExceptionInterface
-     */
-    public function testThrowsExceptionWhenInvalidAuthentication(): void
+    public function testThrowsExceptionWhenInvalidApiSecret(): void
     {
         $fakeSecret = 'Invalid secret';
         list($headers, $formData) = $this->createRequestHeadersAndFormData($fakeSecret);
@@ -66,16 +66,13 @@ class RequestMakerTest extends TestCase
 
         $requestMaker = new RequestMaker($fakeHttpClientMock);
 
-        $response = $requestMaker->make($formData, $headers);
+        $this->expectException(InvalidApiSecretException::class);
+        $this->expectExceptionMessage('Invalid API secret.');
+        $this->expectExceptionCode(401);
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertSame(401, $response->getStatusCode());
+        $requestMaker->make($formData, $headers);
     }
 
-    /**
-     * @return void
-     * @throws TransportExceptionInterface
-     */
     public function testThrowsExceptionWhenRateLimitIsReached(): void
     {
         $fakeSecret = 'Invalid secret';
@@ -100,10 +97,11 @@ class RequestMakerTest extends TestCase
 
         $requestMaker = new RequestMaker($fakeHttpClientMock);
 
-        $response = $requestMaker->make($formData, $headers);
+        $this->expectException(RateLimitReachedException::class);
+        $this->expectExceptionMessage('Rate limit reached for requests.');
+        $this->expectExceptionCode(429);
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertSame(429, $response->getStatusCode());
+        $requestMaker->make($formData, $headers);
     }
 
     /**
@@ -133,10 +131,11 @@ class RequestMakerTest extends TestCase
 
         $requestMaker = new RequestMaker($fakeHttpClientMock);
 
-        $response = $requestMaker->make($formData, $headers);
+        $this->expectException(ApiServerErrorException::class);
+        $this->expectExceptionMessage('API server error.');
+        $this->expectExceptionCode(500);
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertSame(500, $response->getStatusCode());
+        $requestMaker->make($formData, $headers);
     }
 
     /**
@@ -166,9 +165,10 @@ class RequestMakerTest extends TestCase
 
         $requestMaker = new RequestMaker($fakeHttpClientMock);
 
-        $response = $requestMaker->make($formData, $headers);
+        $this->expectException(ApiServerOverloadedException::class);
+        $this->expectExceptionMessage('API server is overloaded.');
+        $this->expectExceptionCode(503);
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertSame(503, $response->getStatusCode());
+        $requestMaker->make($formData, $headers);
     }
 }
