@@ -3,8 +3,9 @@
 namespace App\Service;
 
 use App\ValueObject\FileData;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Mime\Header\Headers;
+use Symfony\Component\Mime\Part\AbstractMultipartPart;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -29,10 +30,10 @@ readonly class AudioToFileService
      * @throws UnexpectedValueException
      * @throws FileException
      */
-    public function convert(FileData $file): string
+    public function convert(FileData $file, AbstractMultipartPart $formDataPart, Headers $headers): string
     {
         $this->validator->validate($file);
-        $response = $this->requestMaker->make($file);
+        $response = $this->requestMaker->make($formDataPart, $headers);
 
         return $this->responseHandler->handle($response);
     }
