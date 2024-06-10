@@ -2,15 +2,18 @@
 
 namespace App\Service;
 
+use App\Exception\ApiServerErrorException;
+use App\Exception\ApiServerOverloadedException;
+use App\Exception\InvalidApiSecretException;
+use App\Exception\RateLimitReachedException;
+use App\RequestMaker;
 use App\ValueObject\FileData;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Mime\Header\Headers;
 use Symfony\Component\Mime\Part\AbstractMultipartPart;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use UnexpectedValueException;
 
 readonly class AudioToFileService
 {
@@ -23,12 +26,18 @@ readonly class AudioToFileService
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
+     * @param FileData $file
+     * @param AbstractMultipartPart $formDataPart
+     * @param Headers $headers
+     * @return string
      * @throws ClientExceptionInterface
-     * @throws UnexpectedValueException
-     * @throws FileException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws ApiServerErrorException
+     * @throws ApiServerOverloadedException
+     * @throws InvalidApiSecretException
+     * @throws RateLimitReachedException
      */
     public function convert(FileData $file, AbstractMultipartPart $formDataPart, Headers $headers): string
     {
