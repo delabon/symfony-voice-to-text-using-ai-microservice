@@ -6,7 +6,7 @@ use App\Exception\ApiServerErrorException;
 use App\Exception\ApiServerOverloadedException;
 use App\Exception\InvalidApiSecretException;
 use App\Exception\RateLimitReachedException;
-use App\RequestMaker;
+use App\Service\RequestMaker;
 use App\Tests\Fake\FakeHttpClient;
 use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Trait\RequestHeaderAndFormDataCreator;
