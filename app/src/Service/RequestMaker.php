@@ -2,10 +2,6 @@
 
 namespace App\Service;
 
-use App\Exception\ApiServerErrorException;
-use App\Exception\ApiServerOverloadedException;
-use App\Exception\InvalidApiSecretException;
-use App\Exception\RateLimitReachedException;
 use Symfony\Component\Mime\Header\Headers;
 use Symfony\Component\Mime\Part\AbstractMultipartPart;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -19,11 +15,10 @@ readonly class RequestMaker
     }
 
     /**
+     * @param AbstractMultipartPart $formDataPart
+     * @param Headers $headers
+     * @return ResponseInterface
      * @throws TransportExceptionInterface
-     * @throws InvalidApiSecretException
-     * @throws RateLimitReachedException
-     * @throws ApiServerErrorException
-     * @throws ApiServerOverloadedException
      */
     public function make(AbstractMultipartPart $formDataPart, Headers $headers): ResponseInterface
     {
