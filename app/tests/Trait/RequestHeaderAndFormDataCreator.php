@@ -2,7 +2,6 @@
 
 namespace App\Tests\Trait;
 
-use App\ValueObject\FileData;
 use Symfony\Component\Mime\Header\Headers;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
@@ -11,7 +10,7 @@ trait RequestHeaderAndFormDataCreator
 {
     /**
      * @param string|null $fakeSecret
-     * @param FileData|null $fileData
+     * @param string|null $filepath
      * @return array
      */
     protected function createRequestHeadersAndFormData(?string $fakeSecret = null, ?string $filepath = null): array
