@@ -14,17 +14,11 @@ trait RequestHeaderAndFormDataCreator
      * @param FileData|null $fileData
      * @return array
      */
-    protected function createRequestHeadersAndFormData(?string $fakeSecret = null, ?FileData $fileData = null): array
+    protected function createRequestHeadersAndFormData(?string $fakeSecret = null, ?string $filepath = null): array
     {
         $fakeSecret = $fakeSecret ?: 'Bla Blah Blahh';
-        $fileData = $fileData ?: new FileData(
-            '/tmp/fake-audio.mp3',
-            'fake-audio.mp3',
-            'mp3',
-            'audio/mp3',
-            'Fake content'
-        );
-        $filePart = DataPart::fromPath($fileData->getPath());
+        $filepath = $filepath ?: '/tmp/fake-audio.mp3';
+        $filePart = DataPart::fromPath($filepath);
 
         $headers = new Headers();
         $headers->addParameterizedHeader('Content-Type', 'multipart/form-data boudary=---boundary---');
@@ -35,6 +29,6 @@ trait RequestHeaderAndFormDataCreator
             'model' => 'whisper-1',
         ]);
 
-        return [$headers, $formData, $fileData];
+        return [$headers, $formData];
     }
 }

@@ -17,7 +17,6 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 readonly class AudioToFileService
 {
     public function __construct(
-        private AudioFileValidator $validator,
         private ResponseHandler $responseHandler,
         private RequestMaker $requestMaker
     )
@@ -25,7 +24,6 @@ readonly class AudioToFileService
     }
 
     /**
-     * @param FileData $file
      * @param AbstractMultipartPart $formDataPart
      * @param Headers $headers
      * @return string
@@ -38,9 +36,8 @@ readonly class AudioToFileService
      * @throws InvalidApiSecretException
      * @throws RateLimitReachedException
      */
-    public function convert(FileData $file, AbstractMultipartPart $formDataPart, Headers $headers): string
+    public function convert(AbstractMultipartPart $formDataPart, Headers $headers): string
     {
-        $this->validator->validate($file);
         $response = $this->requestMaker->make($formDataPart, $headers);
 
         return $this->responseHandler->handle($response);

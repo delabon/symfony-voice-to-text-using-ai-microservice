@@ -2,7 +2,6 @@
 
 namespace App\Tests\Unit;
 
-use App\Service\AudioFileValidator;
 use App\Service\AudioToFileService;
 use App\Service\RequestMaker;
 use App\Service\ResponseHandler;
@@ -11,7 +10,6 @@ use App\Tests\Fake\FakeHttpClientResponse;
 use App\Tests\Fake\FakeHttpException;
 use App\Tests\Trait\FileDuplicator;
 use App\Tests\Trait\RequestHeaderAndFormDataCreator;
-use App\ValueObject\FileData;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mime\Header\Headers;
@@ -28,34 +26,25 @@ class AudioToTextServiceTest extends TestCase
     use RequestHeaderAndFormDataCreator;
 
     private ?string $filepath;
-    private ?FileData $fileData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->filepath = self::duplicate(__DIR__ . '/../TestFiles/test-1.mp3');
-        $this->fileData = new FileData(
-            $this->filepath,
-            basename($this->filepath),
-            pathinfo($this->filepath, PATHINFO_EXTENSION),
-            mime_content_type($this->filepath),
-            file_get_contents($this->filepath)
-        );
     }
 
     protected function tearDown(): void
     {
         @unlink($this->filepath);
         $this->filepath = null;
-        $this->fileData = null;
 
         parent::tearDown();
     }
 
     public function testConvertMethodConvertsAudioFileToTextSuccessfully(): void
     {
-        list($headers, $formData, $fileData) = $this->createRequestHeadersAndFormData(fileData: $this->fileData);
+        list($headers, $formData) = $this->createRequestHeadersAndFormData(filepath: $this->filepath);
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -68,18 +57,17 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            new AudioFileValidator(),
             new ResponseHandler(),
             new RequestMaker($clientMock)
         );
-        $text = $service->convert($fileData, $formData, $headers);
+        $text = $service->convert($formData, $headers);
 
         $this->assertSame("It's a nice day today, isn't it?", $text);
     }
 
     public function testConvertMethodsThrowsExceptionWhenInvalidResponseIsReturned(): void
     {
-        list($headers, $formData, $fileData) = $this->createRequestHeadersAndFormData(fileData: $this->fileData);
+        list($headers, $formData) = $this->createRequestHeadersAndFormData(filepath: $this->filepath);
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -90,19 +78,18 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            new AudioFileValidator(),
             new ResponseHandler(),
             new RequestMaker($clientMock)
         );
 
         $this->expectException(FakeHttpException::class);
 
-        $service->convert($fileData, $formData, $headers);
+        $service->convert($formData, $headers);
     }
 
     public function testConvertMethodsThrowsExceptionWhenInvalidResponseFormatIsReturned(): void
     {
-        list($headers, $formData, $fileData) = $this->createRequestHeadersAndFormData(fileData: $this->fileData);
+        list($headers, $formData) = $this->createRequestHeadersAndFormData(filepath: $this->filepath);
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -113,7 +100,6 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            new AudioFileValidator(),
             new ResponseHandler(),
             new RequestMaker($clientMock)
         );
@@ -121,12 +107,12 @@ class AudioToTextServiceTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid response format.');
 
-        $service->convert($fileData, $formData, $headers);
+        $service->convert($formData, $headers);
     }
 
     public function testConvertMethodsThrowsExceptionWhenResponseDoesNotHaveTheTextKey(): void
     {
-        list($headers, $formData, $fileData) = $this->createRequestHeadersAndFormData(fileData: $this->fileData);
+        list($headers, $formData) = $this->createRequestHeadersAndFormData(filepath: $this->filepath);
 
         $clientResponseMock = $this->createMock(FakeHttpClientResponse::class);
         $clientResponseMock->expects($this->exactly(1))
@@ -137,7 +123,6 @@ class AudioToTextServiceTest extends TestCase
         $clientMock = $this->getClientMock($headers, $formData, $clientResponseMock);
 
         $service = new AudioToFileService(
-            new AudioFileValidator(),
             new ResponseHandler(),
             new RequestMaker($clientMock)
         );
@@ -145,7 +130,7 @@ class AudioToTextServiceTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('The response does not have the text key.');
 
-        $service->convert($fileData, $formData, $headers);
+        $service->convert($formData, $headers);
     }
 
     /**
