@@ -6,9 +6,9 @@
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
-        "ext-iconv": "*",
         "ext-curl": "*",
         "ext-fileinfo": "*",
+        "ext-iconv": "*",
         "symfony/asset": "7.1.*",
         "symfony/console": "7.1.*",
         "symfony/dotenv": "7.1.*",
@@ -16,9 +16,12 @@
         "symfony/form": "7.1.*",
         "symfony/framework-bundle": "7.1.*",
         "symfony/http-client": "7.1.*",
+        "symfony/http-foundation": "7.1.*",
         "symfony/mime": "7.1.*",
         "symfony/runtime": "7.1.*",
+        "symfony/security-csrf": "7.1.*",
         "symfony/twig-bundle": "7.1.*",
+        "symfony/validator": "7.1.*",
         "symfony/yaml": "7.1.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
