@@ -93,6 +93,7 @@ class AudioToTextController extends AbstractController
             $headers = $formData->getPreparedHeaders();
             $headers->addParameterizedHeader('Authorization', 'Bearer ' . $this->getParameter('openai_secret'));
             $text = $audioToFileService->convert($formData, $headers);
+            @unlink($filepath);
 
             return $this->json([
                 'success' => true,

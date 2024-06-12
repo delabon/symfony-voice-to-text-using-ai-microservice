@@ -61,6 +61,30 @@ class AudioToTextTest extends WebTestCase
         ], json_decode($client->getResponse()->getContent(), true));
     }
 
+    public function testDeletesAudioFileAfterConversionSuccessfully(): void
+    {
+        $client = static::createClient();
+        $filepath = self::duplicate(__DIR__ . '/../TestFiles/test-1.mp3');
+        $uploadedFile = new UploadedFile($filepath, basename($filepath), mime_content_type($filepath), null, true);
+        $uploadDir = $client->getContainer()->getParameter('upload_dir');
+
+        $client->request('POST', '/audio-to-text',
+            parameters: [
+                '_token' => $this->generateCsrfToken($client, 'voice_to_text_csrf')
+            ],
+            files: [
+                'audioFile' => $uploadedFile
+            ],
+        );
+
+        $result = array_filter(scandir($uploadDir), function ($item) {
+            return $item !== '.' && $item !== '..';
+        });
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(0, $result);
+    }
+
     public function testReturnsForbiddenResponseWhenInvalidCsrf(): void
     {
         $client = static::createClient();
