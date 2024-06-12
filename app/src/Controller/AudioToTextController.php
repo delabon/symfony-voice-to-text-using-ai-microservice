@@ -98,22 +98,22 @@ class AudioToTextController extends AbstractController
                 'success' => true,
                 'text' => $text
             ]);
-        } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
+        } catch (ClientExceptionInterface $e) {
             return $this->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ]);
-        } catch (FileException $e) {
+            ], Response::HTTP_BAD_REQUEST);
+        } catch(RedirectionExceptionInterface $e) {
             return $this->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ]);
-        } catch (ApiServerErrorException $e) {
+            ], Response::HTTP_MULTIPLE_CHOICES);
+        } catch (FileException|ApiServerErrorException|ServerExceptionInterface $e) {
             return $this->json([
                 'success' => false,
                 'error' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        } catch (ApiServerOverloadedException $e) {
+        } catch (ApiServerOverloadedException|TransportExceptionInterface $e) {
             return $this->json([
                 'success' => false,
                 'error' => $e->getMessage()
