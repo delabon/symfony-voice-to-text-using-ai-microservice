@@ -12,7 +12,7 @@ This makes the application easy to set up, reliable, and capable of running in a
 
 - PHP 8.3: Programming language
 - Symfony 7.1: PHP Framework
-- PHPUnit: Unit and Feature Tests
+- PHPUnit: Automation Testing
 - Docker: Containerization
 - Github actions: Continuous Integration
 - API: Openai Wisper API
